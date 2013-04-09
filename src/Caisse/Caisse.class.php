@@ -1,0 +1,92 @@
+<?php
+namespace Caisse;
+class Caisse{
+	private $articles;
+	private $reduc;
+	
+	public function __construct(){
+		$articles = array();
+		echo "Articles : ";
+		$text = readline();
+		while(!preg_match("#^stop$#", $text)){
+			$articles = explode(",", $text);
+			foreach($articles as $article){
+				$this->addProduct("#^pomme$#", "Pomme", 1, trim($article));
+				$this->addProduct("#^cerise$#", "Cerise", 0.75, trim($article));
+				$this->addProduct("#^banane$#", "Banane", 1.50, trim($article));
+				$this->addProduct("#^apple$#", "Pomme", 1, trim($article), "en");
+				$this->addProduct("#^mele$#", "Pomme", 1, trim($article), "it");
+			}
+			echo "Articles : ";
+			$text = readline();
+		}
+		echo "Prix : " .  $this->calculerPrix() . "\n";
+	}
+	
+	/**
+	* Méthode calculerPrix
+	*/
+	public function calculerPrix() {
+		$total = 0.0;
+		$nbCerises = 0;
+		$nbBananes = 0;
+		$reduction = 0;
+		foreach($this->articles as $article){
+			$reduction = $reduction + $this->reducPrice("Cerise", 20, 2, $article, "fr");
+			$reduction = $reduction + $this->reducPrice("Banane", ($article->getPrice() * 100), 2, $article, "fr");
+			$reduction = $reduction + $this->reducPrice("Pomme", 100, 3, $article, "en");
+			$reduction = $reduction + $this->reducPrice("Pomme", 50, 2, $article, "it");
+			$reduction = $reduction + $this->reducPrice("Pomme", 100, 4, $article, "fr");
+			$reduction = $reduction + $this->reducFruit(5, 200);
+			$total = $total + $article->getPrice() * 100 - $reduction;
+			$reduction = 0;
+		}
+		return $total;
+	}
+	
+	/**
+	* Méthode reducPrice
+	*/
+	public function reducPrice($name, $price, $nb, Article $article, $lang = null) {
+		if($article->getName() == $name AND $lang == $article->getLang()){
+			if(isset($this->reduc[$name])){
+				$this->reduc[$name] ++;
+			}
+			else{
+				$this->reduc[$name] = 1;
+			}
+			if($this->reduc[$name] > $nb-1){
+				$this->reduc[$name] = 0;
+				return $price;
+			}
+		}
+		return 0.0;
+	}
+	
+	public function reducFruit($nb, $price){
+		if(isset($this->reducFruit)){
+			$this->reducFruit ++;
+		}
+		else{
+			$this->reducFruit = 1;
+		}
+		if($this->reducFruit > $nb-1){
+			$this->reducFruit = 0;
+			return $price;
+		}
+		return 0.0;
+	}
+
+	
+	/**
+	* Méthode addProduct
+	*/
+	public function addProduct($regex, $name, $price, $text, $lang = "fr") {
+		if(preg_match($regex, $text)){
+			$this->articles[] = new Article($name, $price, $lang);
+		}
+	}
+
+
+}
+?>

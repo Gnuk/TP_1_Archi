@@ -1,0 +1,28 @@
+<?php
+namespace Caisse;
+class Article{
+	private $name;
+	private $price;
+	
+	public function __construct($name, $price){
+		$this->name = $name;
+		$this->price = $price;
+	}
+	
+	/**
+	* Méthode getName
+	*/
+	public function getName() {
+		return $this->name;
+	}
+	
+	/**
+	* Méthode getPrix
+	*/
+	public function getPrice() {
+		return $this->price;
+	}
+
+
+}
+?>
